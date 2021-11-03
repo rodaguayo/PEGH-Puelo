@@ -27,21 +27,37 @@ T2M_CR2MET_w <- T2M_CR2MET_w[-1, ]
 colnames(T2M_CR2MET_w) <- HRUs$ID
 write.csv(T2M_CR2MET_w, "PP_Input.csv")
 
-
-
-
-
-## OLD
-
 #Wind baseline
-temp_weap<-t(extract(temp,subcuenca2,fun=mean,na.rm=TRUE))
-colnames(temp_weap)<- subcuenca2$Name
-write.xlsx(temp_weap, "Entrada_Wind.xlsx")
+WD_ERA5L <- rast("E:/Datasets/CR2MET/CR2MET_t2m_v2.0_day_1979_2020_005deg.nc")
+WD_ERA5L <- crop(WD_ERA5L, HRUs)[[-1]]
+WD_ERA5L <- tapp(WD_ERA5L, strftime(time(WD_ERA5L),format="%Y-%W"), fun = mean) 
 
-#humidity baseline
-temp_weap<-t(extract(temp,subcuenca2,fun=mean,na.rm=TRUE))
-colnames(temp_weap)<- subcuenca2$Name
-write.xlsx(temp_weap, "Entrada_Humedad.xlsx")
+WD_ERA5L_w <- as.data.frame(t(terra::extract(WD_ERA5L_w, HRUs ,method = "bilinear", fun=mean, na.rm=TRUE)))
+WD_ERA5L_w <- WD_ERA5L_w[-1, ]
+colnames(WD_ERA5L_w) <- HRUs$ID
+write.csv(WD_ERA5L_w, "WD_Input.csv")
+
+#Relative humidity baseline
+RH_ERA5L <- rast("E:/Datasets/CR2MET/CR2MET_t2m_v2.0_day_1979_2020_005deg.nc")
+RH_ERA5L <- crop(RH_ERA5L, HRUs)[[-1]]
+RH_ERA5L <- tapp(RH_ERA5L, strftime(time(RH_ERA5L),format="%Y-%W"), fun = mean) 
+
+RH_ERA5L_w <- as.data.frame(t(terra::extract(RH_ERA5L_w, HRUs ,method = "bilinear", fun=mean, na.rm=TRUE)))
+RH_ERA5L_w <- RH_ERA5L_w[-1, ]
+colnames(RH_ERA5L_w) <- HRUs$ID
+write.csv(RH_ERA5L_w, "RH_Input.csv")
+
+#Cloud cover
+T2M_CR2MET <- rast("E:/Datasets/CR2MET/CR2MET_t2m_v2.0_day_1979_2020_005deg.nc")
+T2M_CR2MET <- crop(T2M_CR2MET, HRUs)[[-1]]
+T2M_CR2MET <- tapp(T2M_CR2MET, strftime(time(T2M_CR2MET),format="%Y-%W"), fun = mean) 
+
+T2M_CR2MET_w <- as.data.frame(t(terra::extract(T2M_CR2MET, HRUs ,method = "bilinear", fun=mean, na.rm=TRUE)))
+T2M_CR2MET_w <- T2M_CR2MET_w[-1, ]
+colnames(T2M_CR2MET_w) <- HRUs$ID
+write.csv(T2M_CR2MET_w, "PP_Input.csv")
+
+
 
 #Climate projections: WEAP 
 subcuenca<-shapefile("C:/Users/Rodrigo/Dropbox/Puelo/SIG/Areas/Subcuencas_Puelo2_elep.shp")
