@@ -2,25 +2,24 @@ rm(list=ls())
 cat("\014")  
 
 library("terra")
-library("tools")
 
 HRUs<-vect("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/GIS/Elevation_bands.shp") #Default for Puelo 
 HRUs<-ext(c(-73.6,-70.8,-49.4,-41.1))
 
 ## Precipitation baseline
-PP_CR2MET <- rast("E:/Datasets/CR2MET/CR2MET_pr_v2.0_day_1979_2020_005deg.nc")
+PP_CR2MET <- rast("E:/Datasets/CR2MET/CR2MET_pr_v2.0_day_1979_2020_005deg.nc",  subds="pr")
 PP_CR2MET <- crop(PP_CR2MET,HRUs)
 PP_CR2MET <- subset(PP_CR2MET, which(time(PP_CR2MET) > '1979-03-31' & (time(PP_CR2MET) <= '2020-03-31')))
 PP_CR2MET_m <- tapp(PP_CR2MET, strftime(time(PP_CR2MET),format="%Y"), fun = sum)
 PP_CR2MET_m <- mean(PP_CR2MET_m[[-c(1,nlyr(PP_CR2MET_m))]]) #Exclude first and last
 
 writeRaster(PP_CR2MET_m, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Precipitation/PP_CR2MET_mean.tif", datatype="INT4S", overwrite = TRUE)
-writeCDF(PP_CR2MET, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Precipitation/PP_CR2MET_d.nc",  
-         prec="integer", overwrite=TRUE, varname="pr", unit="mm", longname="precipitation", zname="time", compression = 9)
+writeCDF(PP_CR2MET, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Precipitation/PP_CR2MET_d.nc", 
+         overwrite=TRUE, varname="pr", unit="mm", longname="precipitation", zname="time", compression = 9)
 
 
 ## Temperature baseline
-T2M_CR2MET <- rast("E:/Datasets/CR2MET/CR2MET_t2m_v2.0_day_1979_2020_005deg.nc")
+T2M_CR2MET <- rast("E:/Datasets/CR2MET/CR2MET_t2m_v2.0_day_1979_2020_005deg.nc", subds="t2m")
 T2M_CR2MET <- crop(T2M_CR2MET, HRUs)
 T2M_CR2MET <- subset(T2M_CR2MET, which(time(T2M_CR2MET) > '1979-03-31' & (time(T2M_CR2MET) <= '2020-03-31')))
 T2M_CR2MET_m <- tapp(T2M_CR2MET, strftime(time(T2M_CR2MET),format="%Y"), fun = mean)
@@ -110,8 +109,8 @@ RH_ERA5L_m <- tapp(RH_ERA5L_d, strftime(time(RH_ERA5L_d),format="%Y"), fun = mea
 RH_ERA5L_m <- mean(RH_ERA5L_m[[-c(1,nlyr(RH_ERA5L_m))]]) #Exclude first and last
 
 writeRaster(RH_ERA5L_m, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Others/RH_ERA5L_mean.tif", datatype="INT4S", overwrite = TRUE)
-writeCDF(RH_ERA5L_d, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Others/RH_ERA5L_d.nc",prec="integer",
-         overwrite=TRUE, varname="rh", unit="%", longname="Relative humidity", zname="time", compression = 9)
+writeCDF(RH_ERA5L_d, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Others/RH_ERA5L_d.nc", overwrite=TRUE, 
+         varname="rh", unit="%", longname="Relative humidity", zname="time", compression = 9)
 
 
 ## Cloud cover
@@ -120,6 +119,6 @@ CC_MODIS <- crop(CC_MODIS, HRUs)*0.01
 CC_MODIS[CC_MODIS > 100] <- NA
 
 writeRaster(mean(CC_MODIS), "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Others/CC_MODIS_mean.tif", datatype="INT4S", overwrite = TRUE)
-writeCDF(CC_MODIS, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Others/CC_MODIS.nc",  
-         prec="integer", overwrite=TRUE, varname="cc", unit="%", longname="Cloud cover", zname="time", compression = 9)
+writeCDF(CC_MODIS, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Others/CC_MODIS.nc", overwrite=TRUE, 
+         varname="cc", unit="%", longname="Cloud cover", zname="time", compression = 9)
 
