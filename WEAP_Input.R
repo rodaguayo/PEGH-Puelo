@@ -1,94 +1,55 @@
 rm(list=ls())
 cat("\014")  
 
+library("exactextractr")
 library("terra")
-library("readxl")
-library("tools")
+library("sf")
 
-HRUs<-vect("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/GIS/Elevation_bands.shp")
+HRUs<-st_read("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/GIS/Elevation_bands.shp")
 
 ## Precipitation baseline
 PP_CR2MET_d <- rast("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Precipitation/PP_CR2MET_d.nc")
-PP_CR2MET_d <- as.data.frame(t(terra::extract(PP_CR2MET_d, HRUs ,method = "bilinear", fun=mean, na.rm=TRUE)))
-PP_CR2MET_d <- PP_CR2MET_w[-1, ]
-colnames(PP_CR2MET_w) <- HRUs$ID
-write.csv(PP_CR2MET_w, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/WEAP/PP_Input.csv")
+PP_CR2MET_d <- as.data.frame(t(exact_extract(PP_CR2MET_d, HRUs , 'mean')))
+rownames(PP_CR2MET_d) <- seq(from = as.POSIXct("1979-04-01", tz="UTC"), to = as.POSIXct("2020-03-31", tz="UTC"), by = "day")
+colnames(PP_CR2MET_d) <- HRUs$ID_WEAP
+PP_CR2MET_d <- round(PP_CR2MET_d,0)
+write.csv(PP_CR2MET_d, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/WEAP/PP_Input.csv")
+
 
 ## Temperature baseline
-T2M_CR2MET <- rast("E:/Datasets/CR2MET/CR2MET_t2m_v2.0_day_1979_2020_005deg.nc")
-T2M_CR2MET <- crop(T2M_CR2MET, HRUs)[[-1]]
-T2M_CR2MET <- tapp(T2M_CR2MET, strftime(time(T2M_CR2MET),format="%Y-%W"), fun = mean) 
+T2M_CR2MET_d <- rast("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Temperature/T2M_CR2MET_d.nc")
+T2M_CR2MET_d <- as.data.frame(t(exact_extract(T2M_CR2MET_d, HRUs , "mean")))
+rownames(T2M_CR2MET_d) <- seq(from = as.POSIXct("1979-04-01", tz="UTC"), to = as.POSIXct("2020-03-31", tz="UTC"), by = "day")
+colnames(T2M_CR2MET_d) <- HRUs$ID_WEAP
+T2M_CR2MET_d <- round(T2M_CR2MET_d,2)
+write.csv(T2M_CR2MET_d, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/WEAP/T2M_Input.csv")
 
-T2M_CR2MET_w <- as.data.frame(t(terra::extract(T2M_CR2MET, HRUs ,method = "bilinear", fun=mean, na.rm=TRUE)))
-T2M_CR2MET_w <- T2M_CR2MET_w[-1, ]
-colnames(T2M_CR2MET_w) <- HRUs$ID
-write.csv(T2M_CR2MET_w, "PP_Input.csv")
 
 ## Wind baseline
-WD_ERA5L_u <- rast("E:/Datasets/CR2MET/CR2MET_t2m_v2.0_day_1979_2020_005deg.nc")
-WD_ERA5L_v <- rast("E:/Datasets/CR2MET/CR2MET_t2m_v2.0_day_1979_2020_005deg.nc")
+WD_ERA5L_d <- rast("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Others/WD_ERA5L_d.nc")
+WD_ERA5L_d <- as.data.frame(t(exact_extract(WD_ERA5L_d, HRUs , "mean")))
+rownames(WD_ERA5L_d) <- seq(from = as.POSIXct("1979-04-01", tz="UTC"), to = as.POSIXct("2020-03-31", tz="UTC"), by = "day")
+colnames(WD_ERA5L_d) <- HRUs$ID_WEAP
+WD_ERA5L_d <- round(WD_ERA5L_d,2)
+write.csv(WD_ERA5L_d, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/WEAP/WD_Input.csv")
 
-
-
-WD_ERA5L 
-
-
-WD_ERA5L <- crop(WD_ERA5L, HRUs)[[-1]]
-WD_ERA5L <- tapp(WD_ERA5L, strftime(time(WD_ERA5L),format="%Y-%W"), fun = mean) 
-
-WD_ERA5L_w <- as.data.frame(t(terra::extract(WD_ERA5L_w, HRUs ,method = "bilinear", fun=mean, na.rm=TRUE)))
-
-#From 10m to 2m
-WD_ERA5L_w <- WD_ERA5L_w*((2/10)^0.25)
-WD_ERA5L_w <- (WD_ERA5L_w*5.0849)-2.6095
-
-
-WD_ERA5L_w <- WD_ERA5L_w[-1, ]
-colnames(WD_ERA5L_w) <- HRUs$ID
-write.csv(WD_ERA5L_w, "WD_Input.csv")
 
 #Relative humidity baseline
-RH_ERA5L <- rast("E:/Datasets/CR2MET/CR2MET_t2m_v2.0_day_1979_2020_005deg.nc")
-RH_ERA5L <- crop(RH_ERA5L, HRUs)[[-1]]
-RH_ERA5L <- tapp(RH_ERA5L, strftime(time(RH_ERA5L),format="%Y-%W"), fun = mean) 
+HR_ERA5L_d <- rast("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Others/RH_ERA5L_d.nc")
+HR_ERA5L_d <- as.data.frame(t(exact_extract(HR_ERA5L_d, HRUs, "mean")))
+rownames(HR_ERA5L_d) <- seq(from = as.POSIXct("1979-04-01", tz="UTC"), to = as.POSIXct("2020-03-31", tz="UTC"), by = "day")
+colnames(HR_ERA5L_d) <- HRUs$ID_WEAP
+HR_ERA5L_d <- round(HR_ERA5L_d,1)
+write.csv(HR_ERA5L_d, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/WEAP/HR_Input.csv")
 
-
-temp<-stack("C:/Users/Rodrigo/Dropbox/Puelo/Datos/Humedad Relativa/t2m_ERA5.nc")
-tempr<-stack("C:/Users/Rodrigo/Dropbox/Puelo/Datos/Humedad Relativa/t2m_rocio_ERA5.nc")
-
-es_rocio<-6.1094*exp((17.625*tempr)/(243.04+tempr))
-es<-6.1094*exp((17.625*temp)/(243.04+temp))
-HR<-es_rocio/es
-
-HR<-setZ(HR, as.Date(as.numeric(substring(names(temp), 2)), origin = "1970-01-01"))
-
-
-RH_ERA5L_w <- as.data.frame(t(terra::extract(RH_ERA5L_w, HRUs ,method = "bilinear", fun=mean, na.rm=TRUE)))
-
-RH_ERA5L_w <- RH_ERA5L_w[-1, ]
-colnames(RH_ERA5L_w) <- HRUs$ID
-write.csv(RH_ERA5L_w, "RH_Input.csv")
 
 #Cloud cover
-T2M_CR2MET <- rast("E:/Datasets/CR2MET/CR2MET_t2m_v2.0_day_1979_2020_005deg.nc")
-T2M_CR2MET <- crop(T2M_CR2MET, HRUs)[[-1]]
-T2M_CR2MET <- tapp(T2M_CR2MET, strftime(time(T2M_CR2MET),format="%Y-%W"), fun = mean) 
+CC_MODIS_m <- rast("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Others/CC_MODIS.nc")
+CC_MODIS_m <- as.data.frame(t(exact_extract(CC_MODIS_m, HRUs , "mean")))
+colnames(CC_MODIS_m) <- HRUs$ID_WEAP
+CC_MODIS_m <- round(CC_MODIS_m,2)
+write.csv(CC_MODIS_m, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/WEAP/CC_Input.csv")
 
-T2M_CR2MET_w <- as.data.frame(t(terra::extract(T2M_CR2MET, HRUs ,method = "bilinear", fun=mean, na.rm=TRUE)))
-T2M_CR2MET_w <- T2M_CR2MET_w[-1, ]
-colnames(T2M_CR2MET_w) <- HRUs$ID
-write.csv(T2M_CR2MET_w, "PP_Input.csv")
-
-#Cloud cover
-CC_MODIS <- list.files("E:/Datasets/CLOUD_COVER/", full.names = TRUE)
-CC_MODIS <- rast(CC_MODIS)
-
-CC_MODIS_w <- as.data.frame(t(terra::extract(CC_MODIS, HRUs ,method = "bilinear", fun=mean, na.rm=TRUE)))
-
-
-CC_MODIS_w <- CC_MODIS_w[-1, ]
-colnames(T2M_CR2MET_w) <- HRUs$ID
-write.csv(T2M_CR2MET_w, "PP_Input.csv")
 
 ## OLD
 
