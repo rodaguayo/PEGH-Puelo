@@ -8,6 +8,7 @@ basins<-shapefile("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/GIS/Subcuencas_Pu
 nasadem_30m<-raster("C:/Users/rooda/Dropbox/ArcGIS/Chile/dem_patagonia1.tif")
 
 elev_bands<-terra::vect()
+weap_id<-rev(sprintf('%0.2d', 1:4))
 
 for (i in 1:length(basins)) {
   
@@ -19,6 +20,8 @@ for (i in 1:length(basins)) {
   zone_i$ID <- paste0(basins[i,]$Nombre,"_",elev_zones_i$median.elevation)
   zone_i$median_elev <- elev_zones_i$median.elevation
   zone_i$HRU <- basins[i,]$Nombre
+  zone_i$ID_WEAP <- paste0("Subcuenca_", basins[i,]$Nombre,"_",weap_id)
+  
   
   elev_bands<-rbind(elev_bands,zone_i)
   print(i)
