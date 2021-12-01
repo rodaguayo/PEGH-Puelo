@@ -50,7 +50,6 @@ library("zoo")
 CC_MODIS_m <- rast("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Others/CC_MODIS.nc")
 date <- MODIS::extractDate(list.files("E:/Datasets/CLOUD_COVER2/HDF", recursive = FALSE), asDate = TRUE)$inputLayerDates
 CC_MODIS_m <- as.data.frame(t(exact_extract(CC_MODIS_m, HRUs , "mean")))
-CC_MODIS_m <- round(CC_MODIS_m,1)
 colnames(CC_MODIS_m) <- HRUs$ID_WEAP
 
 #Interpolate daily values
@@ -59,9 +58,10 @@ CC_MODIS_m <- na.spline(CC_MODIS_m, xout = seq(start(CC_MODIS_m), end(CC_MODIS_m
 date<- index(CC_MODIS_m)
 CC_MODIS_m <- sapply(CC_MODIS_m, FUN = function(x) {smooth.spline(x, spar =0.25)$y})
 CC_MODIS_m <- zoo(CC_MODIS_m, order.by = date)
-
-CC_MODIS_m <- as.data.frame(aggregate(CC_MODIS_m, by = strftime(index(CC_MODIS_m),format="%m-%d"), FUN = median))
-CC_MODIS_m <- CC_MODIS_m[-60, ] #Leap day
+CC_MODIS_m <- as.data.frame(aggregate(CC_MODIS_m, by = strftime(index(CC_MODIS_m),format="%m-%d"), FUN = median))/100
+CC_MODIS_m[CC_MODIS_m > 1] <- 1
+CC_MODIS_m <- 1- CC_MODIS_m 
+CC_MODIS_m <- round(CC_MODIS_m,2)
 write.csv(CC_MODIS_m, "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/WEAP/Inputs/Input_CC.csv")
 
 
