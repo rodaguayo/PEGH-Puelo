@@ -35,8 +35,8 @@ data_obs_annual<-monthly2annual(cbind(period,q_obs), FUN = mean, na.rm = F, out.
 q_sim_nc_prob<-as.data.frame(hydroTSM::fdc(q_sim_nc, plot =FALSE))
 q_obs_prob<-as.data.frame(hydroTSM::fdc(q_obs, plot =FALSE))
 
-f <- list(family = "Verdana", size = 16)
-f2 <- list(family = "Verdana", size = 14)
+f <- list(family = "Verdana", size = 14)
+f2 <- list(family = "Verdana", size = 12)
 
 for(i in 1:10) {
   
@@ -67,15 +67,15 @@ for(i in 1:10) {
   title4 <-list(text = "d) Curva de duración", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.25, y = 0.9)
   fig4 <- plot_ly(showlegend = FALSE, y = sort(q_sim_nc[,i]), x =  sort(q_sim_nc_prob[,i])*100, type = 'scatter', mode = 'lines', line = list(size = 3, color = "grey"))
   fig4 <- fig4 %>% add_trace(y = sort(q_obs[,i]), x =  sort(q_obs_prob[,i])*100, mode = 'lines', line = list(size = 3, color = "black"))
-  fig4 <- fig4 %>% layout(xaxis = x4, yaxis = y4, annotations = title4)
+  fig4 <- fig4 %>% layout(xaxis = x4, annotations = title4)
   
-  s1  <- subplot(fig1, fig2, nrows = 1, shareX = T, shareY= T, titleY = T, titleX = T, margin = c(0.02, 0.02, 0.02, 0.02))
-  s2  <- subplot(fig3, fig4, nrows = 1, shareX = F, shareY= T, titleY = T, titleX = T, margin = c(0.02, 0.02, 0.02, 0.02))
-  fig <- subplot(s1, s2, nrows = 2,  titleY = T, titleX = T, margin = c(0.02, 0.02, 0.02, 0.02))
+  s1  <- subplot(fig1, fig2, nrows = 1, shareX = T, shareY= T, titleY = T, titleX = T, margin = c(0.04, 0.04, 0.04, 0.04))
+  s2  <- subplot(fig3, fig4, nrows = 1, shareX = F, shareY= T, titleY = T, titleX = T, margin = c(0.04, 0.04, 0.04, 0.04))
+  fig <- subplot(s1, s2, nrows = 2,  titleY = T, titleX = T, margin = c(0.04, 0.04, 0.04, 0.04))
   fig
   
   server <- orca_serve()
-  server$export(fig, file = paste0("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Results/Hydro_plot_",i,".png"), width = 1200, height = 1200, scale = 3)
+  server$export(fig, file = paste0("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Results/Hydro_plot_",i,".png"), width = 1000, height = 600, scale = 3)
   server$close()
   
   }

@@ -4,19 +4,12 @@ cat("\014")
 
 library("hydroGOF")
 library("plotly")
+library("hydroTSM")
 
-q_sim<-read.csv("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Caudales_Simulados.csv")
-q_obs<-read.csv("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Caudales_Observados.csv")
-
-q_sim$X<-as.Date(q_sim$X, "%b %d %Y")
-q_obs$X<-as.Date(q_obs$X, "%b %d %Y")
-
-q_sim<-zoo(q_sim[,2:11], order.by = q_sim$X)
-q_obs<-zoo(q_obs[,2:11], order.by = q_obs$X)
-period<-as.yearmon(time(q_sim))
-q_sim<-as.data.frame(aggregate(q_sim, as.yearmon(time(q_sim)), mean))
-q_obs<-as.data.frame(aggregate(q_obs, as.yearmon(time(q_obs)), mean))
-period<-as.Date(paste0(rownames(q_sim),1), "%b %Y%d")
+q_sim<-read.csv("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Results/Caudales_Simulados.csv")
+q_obs<-read.csv("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Results/Caudales_Observados.csv")
+names_gauge<-c("Río Azul", "Río Foyel","Río Manso en los Moscos","Rio Manso en Lago Steffen","Río Manso en Confluencia",
+               "Río Manso antes Río Puelo", "Puelo en Frontera","Río Puelo antes Río Manso","Río Puelo en Tagua-Tagua","Río Puelo en Carrera Basilio")
 
 q_sim_c<-q_sim[as.numeric(substr(rownames(q_sim), 5, 8)) %% 2 != 1,]
 q_obs_c<-q_obs[as.numeric(substr(rownames(q_obs), 5, 8)) %% 2 != 1,]
@@ -28,7 +21,7 @@ KGE_c<-rbind(KGE_c$KGE.value, KGE_c$KGE.elements)
 KGE_v<-KGE(sim=q_sim_v, obs=q_obs_v, method="2012", out.type="full", na.rm=TRUE)
 KGE_v<-rbind(KGE_v$KGE.value, KGE_v$KGE.elements)
 
-write.csv(rbind(KGE_c,KGE_v), "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/KGE_Q.csv")
+write.csv(rbind(KGE_c,KGE_v), "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Results/KGE_Q.csv")
 
 f <- list(family = "Verdana", size = 12)
 f2 <- list(family = "Verdana", size = 10)
