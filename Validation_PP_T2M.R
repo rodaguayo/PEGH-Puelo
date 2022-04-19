@@ -14,6 +14,7 @@ period<-seq(from = as.POSIXct("1980-01-01", tz="UTC"), to = as.POSIXct('2019-12-
 
 #Observations
 pp_shape<-vect("C:/Users/rooda/Dropbox/Patagonia/GIS South/Precipitation_v10.shp")
+pp_shape$Zone2<-cut(pp_shape$Latitude, c(-40.5, -42.5, -44.5, -46.5, -49.5, -Inf))
 pp_obs<-as.data.frame(read_xlsx("C:/Users/rooda/Dropbox/Patagonia/Data/precipitation/Data_precipitation_v10.xlsx", sheet = "data_daily", guess_max = 30000))
 pp_obs$Date<-as.POSIXct(pp_obs$Date)
 pp_obs <- subset(pp_obs, Date >= min(period) & Date <= max(period))
@@ -21,6 +22,7 @@ pp_obs <- aggregate(pp_obs[,-1], FUN = sum, by = list(strftime(period,format="%Y
 pp_obs$Group.1<- NULL
 
 t2m_shape<-vect("C:/Users/rooda/Dropbox/Patagonia/GIS South/Temperature_v10.shp")
+t2m_shape$Zone2<-cut(t2m_shape$Latitude, c(-40.5, -42.5, -44.5, -46.5, -49.5, -Inf))
 t2m_obs<-as.data.frame(read_xlsx("C:/Users/rooda/Dropbox/Patagonia/Data/temperature/Data_temperature_v10.xlsx", sheet = "data_daily", guess_max = 30000))
 t2m_obs$Date<-as.POSIXct(t2m_obs$Date)
 t2m_obs <- subset(t2m_obs, Date >= min(period) & Date <= max(period))
@@ -62,59 +64,55 @@ marker <- list(color = ~Zone, size = 5)
 
 x <- list(titlefont = f, tickfont = f2, ticks = "outside")
 title <-list(text = "a)", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.01, y = 0.99)
-y <- list(title = "Correlation PP (r)", titlefont = f, 
+y <- list(title = "Correlación PP (r)", titlefont = f, 
           tickfont = f2, dtick = 0.2, ticks = "outside", zeroline = FALSE, range = c(0.2, 1))
 
-fig1 <- plot_ly(KGE_pp, y = ~r_wk, x = ~Zone, type = "box", color = ~Zone, boxpoints = "all",  marker = marker, pointpos = 0, colors = brewer.pal(3, 'Set2'))
+fig1 <- plot_ly(KGE_pp, y = ~r_wk, x = ~Zone2, type = "box", color = ~Zone2, boxpoints = "all",  marker = marker, pointpos = 0, colors = brewer.pal(3, 'Set2'))
 fig1 <- fig1 %>% layout(xaxis = x, yaxis = y, showlegend = FALSE)
 fig1 <- fig1 %>% layout(plot_bgcolor="rgb(235, 235, 235)")
 fig1 <- fig1 %>% layout(annotations = title)
-fig1
 
 title2 <-list(text = "b)", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.03, y = 0.99)
-y2 <- list(title = "Bias PP (β)", titlefont = f, range = c(0, 2),
+y2 <- list(title = "Sesgo PP (β)", titlefont = f, range = c(0, 2),
            tickfont = f2, dtick = 0.5, ticks = "outside", zeroline = FALSE)
 
-fig2 <- plot_ly(KGE_pp, y = ~Beta_wk, x = ~Zone, type = "box", color = ~Zone, boxpoints = "all",  marker = marker, pointpos = 0, colors = brewer.pal(3, 'Set2'))
+fig2 <- plot_ly(KGE_pp, y = ~Beta_wk, x = ~Zone2, type = "box", color = ~Zone2, boxpoints = "all",  marker = marker, pointpos = 0, colors = brewer.pal(3, 'Set2'))
 fig2 <- fig2 %>% layout(xaxis = x, yaxis = y2, showlegend = FALSE)
 fig2 <- fig2 %>% layout(plot_bgcolor="rgb(235, 235, 235)")
 fig2 <- fig2 %>% layout(annotations = title2)
-fig2
 
 title3 <-list(text = "c)", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.01, y = 0.95)
-y3 <- list(title = "Variability PP(γ)", titlefont = f, range = c(0.4, 1.2),
+y3 <- list(title = "Variabilidad PP(γ)", titlefont = f, range = c(0.4, 1.2),
            tickfont = f2, dtick = 0.2, ticks = "outside", zeroline = FALSE)
 
-fig3 <- plot_ly(KGE_pp, y = ~Gamma_wk, x = ~Zone, type = "box", color = ~Zone, boxpoints = "all",  marker = marker, pointpos = 0, colors = brewer.pal(3, 'Set2'))
+fig3 <- plot_ly(KGE_pp, y = ~Gamma_wk, x = ~Zone2, type = "box", color = ~Zone2, boxpoints = "all",  marker = marker, pointpos = 0, colors = brewer.pal(3, 'Set2'))
 fig3 <- fig3 %>% layout(xaxis = x, yaxis = y3, showlegend = FALSE)
 fig3 <- fig3 %>% layout(plot_bgcolor="rgb(235, 235, 235)")
 fig3 <- fig3 %>% layout(annotations = title3)
-fig3
 
 title4 <-list(text = "d)", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.03, y = 0.95)
 y4 <- list(title = "KGE PP ", titlefont = f, 
            tickfont = f2, dtick = 0.3, ticks = "outside", zeroline = FALSE, range = c(0, 1.2))
 
-fig4 <- plot_ly(KGE_pp, y = ~KGE_wk, x = ~Zone, type = "box", color = ~Zone, boxpoints = "all",  marker = marker, pointpos = 0, colors = brewer.pal(3, 'Set2'))
+fig4 <- plot_ly(KGE_pp, y = ~KGE_wk, x = ~Zone2, type = "box", color = ~Zone2, boxpoints = "all",  marker = marker, pointpos = 0, colors = brewer.pal(3, 'Set2'))
 fig4 <- fig4 %>% layout(xaxis = x, yaxis = y4, showlegend = FALSE)
 fig4 <- fig4 %>% layout(plot_bgcolor="rgb(235, 235, 235)")
 fig4 <- fig4 %>% layout(annotations = title4)
-fig4
 
 title5 <-list(text = "e)", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.01, y = 0.91)
-y5 <- list(title = "Mean error T2M (ºC)", titlefont = f, 
+y5 <- list(title = "Error medio T2M (ºC)", titlefont = f, 
            tickfont = f2, dtick = 1.5, ticks = "outside", zeroline = FALSE, range = c(-3, 3))
 
-fig5 <- plot_ly(KGE_t2m, y = ~ME_wk, x = ~Zone, type = "box", color = ~Zone, boxpoints = "all",  marker = marker, pointpos = 0, colors = brewer.pal(3, 'Set2'))
+fig5 <- plot_ly(KGE_t2m, y = ~ME_wk, x = ~Zone2, type = "box", color = ~Zone2, boxpoints = "all",  marker = marker, pointpos = 0, colors = brewer.pal(3, 'Set2'))
 fig5 <- fig5 %>% layout(xaxis = x, yaxis = y5, showlegend = FALSE)
 fig5 <- fig5 %>% layout(plot_bgcolor="rgb(235, 235, 235)")
 fig5 <- fig5 %>% layout(annotations = title5)
 
 title6 <-list(text = "f)", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.03, y = 0.91)
-y6 <- list(title = "Variability T2M", titlefont = f, 
+y6 <- list(title = "Variabilidad T2M", titlefont = f, 
            tickfont = f2, dtick = 0.2, ticks = "outside", zeroline = FALSE, range = c(0.6, 1.4))
 
-fig6 <- plot_ly(KGE_t2m, y = ~Gamma_wk, x = ~Zone, type = "box", color = ~Zone, boxpoints = "all",  marker = marker, pointpos = 0, colors = brewer.pal(3, 'Set2'))
+fig6 <- plot_ly(KGE_t2m, y = ~Gamma_wk, x = ~Zone2, type = "box", color = ~Zone2, boxpoints = "all",  marker = marker, pointpos = 0, colors = brewer.pal(3, 'Set2'))
 fig6 <- fig6 %>% layout(xaxis = x, yaxis = y6, showlegend = FALSE)
 fig6 <- fig6 %>% layout(plot_bgcolor="rgb(235, 235, 235)")
 fig6 <- fig6 %>% layout(annotations = title6)
@@ -125,8 +123,6 @@ fig <- subplot(fig1, fig2, fig3, fig4, fig5, fig6,
 fig
 
 server <- orca_serve()
-server$export(fig, file = "Figure5_Validation.pdf", width = 1200, height = 1000, scale = 4)
-server$export(fig, file = "Figure5_Validation.png", width = 1200, height = 1000, scale = 4)
+server$export(fig, file = "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Results/Figure5_Validation.png", width = 1200, height = 1500, scale = 4)
 server$close()
 
-htmlwidgets::saveWidget(fig, "fig.html")
