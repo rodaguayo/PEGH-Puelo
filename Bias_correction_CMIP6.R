@@ -1,75 +1,51 @@
 rm(list=ls())
 cat("\014")  
 
+options(java.parameters = "-Xmx16g")  
+
 library("transformeR")
 library("downscaleR")
 library("loadeR")
 library("visualizeR")
 library("loadeR.2nc")
-library("raster")
 library("tools")
 
-#N°1: Precipitation
-pp_baseline<-loadGridData("C:/Users/Rodrigo/Dropbox/Puelo/Datos/Precipitacion/Datos_Grillados_PP/PP_v3_2000_2019.nc", var = "Precipitation", years = 2001:2018)
-ssp_list<-list.dirs(path="C:/Users/Rodrigo/Dropbox/Rstudio/Patagonia/CMIP5/Precipitation_MS2", full.names = TRUE,recursive =FALSE)
-historical<-list.files(path=ssp_list[1], pattern = "nc$", full.names = TRUE, recursive = FALSE)
+## Precipitation
+pp_baseline<-loadGridData("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Precipitation/PP_CR2MET_d.nc",
+                          lonLim = c(-72.4, -71.1), latLim = c(-42.5, -41.10), var = "pr", years = 1995:2000)
+t2m_baseline<-loadGridData("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Data/Temperature/T2M_CR2MET_d.nc", 
+                           lonLim = c(-72.4, -71.1), latLim = c(-42.5, -41.10), var = "t2m", years = 1980:2010)
 
-for(j in 1:5) {
-  model_hist <- loadGridData(historical[j], var = "Precipitation")
+gcm_list<-list.dirs("E:/Datasets/GCMs/Daily", full.names = TRUE,recursive =FALSE)
+ssp_list<-c("historical","ssp126","ssp245", "ssp585")
+
+for(j in 4:4) {
+  pp_files<-list.files(path=gcm_list[j], pattern = "subset.+pr.+nc$", full.names = TRUE, recursive = FALSE)
+  t2m_files<-list.files(path=gcm_list[j], pattern = "subset.+tas.+nc$", full.names = TRUE, recursive = FALSE)
   
-  #For CMIP5 models
-  model_hist <- subsetGrid(model_hist, years = 1980:2005)
+  pp_historical <- grep(pattern = ssp_list[1], pp_files, value = T)
+  pp_historical <- loadGridData(pp_historical, var = "pr", years = 1990:1991)
+  pp_historical <- interpGrid(pp_historical,  new.coordinates = getGrid(pp_baseline), method = "bilinear", bilin.method = "akima")
   
-  for(i in 2:4) {
-    model_name<-list.files(path=ssp_list[i], pattern = "nc$", full.names = TRUE, recursive = FALSE)[j]
-    model_ssp <- loadGridData(model_name, var = "Precipitation")
-    model_ssp <- bindGrid(model_ssp, model_hist, dimension = "time")
-
-    #training and simulate period
-    model_training <- subsetGrid(model_ssp, years = 2001:2018)
-    model_training <- interpGrid(model_training, new.coordinates = getGrid(pp_baseline), method = "bilinear", bilin.method = "akima")
-
-    model_ssp <- subsetGrid(model_ssp, years = 2019:2070)
-    model_ssp <- interpGrid(model_ssp, new.coordinates = getGrid(pp_baseline), method = "bilinear", bilin.method = "akima")
-    
-    model_ssp_eqm<-biasCorrection(y = pp_baseline, x = model_training, newdata = model_ssp, precipitation = TRUE, method = "eqm", extrapolation = "constant")
-    model_ssp_qdm<-biasCorrection(y = pp_baseline, x = model_training, newdata = model_ssp, precipitation = TRUE, method = "qdm")
-    model_ssp_ptr<-biasCorrection(y = pp_baseline, x = model_training, newdata = model_ssp, precipitation = TRUE, method = "ptr")
-    grid2nc(model_ssp_eqm, paste0(file_path_sans_ext(basename(model_name)),"_eqm.nc4"))
-    grid2nc(model_ssp_qdm, paste0(file_path_sans_ext(basename(model_name)),"_qdm.nc4"))
-    grid2nc(model_ssp_ptr, paste0(file_path_sans_ext(basename(model_name)),"_ptr.nc4"))
-    print(paste0("model_",j,"_ssp_",i-1))
-      }
-  }
-
-#N°2: Temperature
-pp_baseline<-loadGridData("C:/Users/Rodrigo/Dropbox/Puelo/Datos/Temperatura/Datos_Grillados_TEMP/Temp_v2_t2m_2000_2019.nc", var = "Temperature_t2m", years = 2001:2018)
-ssp_list<-list.dirs(path="C:/Users/Rodrigo/Dropbox/Rstudio/Patagonia/CMIP5/Temperature_MS2", full.names = TRUE,recursive =FALSE)
-historical<-list.files(path=ssp_list[1], pattern = "nc$", full.names = TRUE, recursive = FALSE)
-
-for(j in 1:5) {
-  model_hist <- loadGridData(historical[j], var = "Temperature")
-  
-  #For CMIP5 models
-  model_hist <- subsetGrid(model_hist, years = 1980:2005)
+  t2m_historical <- grep(pattern = ssp_list[1], t2m_files, value = T)
+  t2m_historical <- loadGridData(t2m_historical, var = "tas", years = 1980:2010)
+  t2m_historical <- interpGrid(t2m_historical,  new.coordinates = getGrid(t2m_baseline), method = "bilinear", bilin.method = "akima")
   
   for(i in 2:4) {
-    model_name<-list.files(path=ssp_list[i], pattern = "nc$", full.names = TRUE, recursive = FALSE)[j]
-    model_ssp <- loadGridData(model_name, var = "Temperature")
-    model_ssp <- bindGrid(model_ssp, model_hist, dimension = "time")
     
-    #training and simulate period
-    model_training <- subsetGrid(model_ssp, years = 2001:2018)
-    model_training <- interpGrid(model_training, new.coordinates = getGrid(pp_baseline), method = "bilinear", bilin.method = "akima")
-    model_ssp <- subsetGrid(model_ssp, years = 2019:2070)
-    model_ssp <- interpGrid(model_ssp, new.coordinates = getGrid(pp_baseline), method = "bilinear", bilin.method = "akima")
+    pp_model_name <- grep(pattern = ssp_list[i], pp_files, value = T)
+    pp_model_ssp  <- loadGridData(pp_model_name, var = "pr", years = 2021:2022)
+    pp_model_ssp  <- interpGrid(pp_model_ssp,  new.coordinates = getGrid(pp_historical), method = "bilinear", bilin.method = "akima")
+    pp_model_ssp_qdm  <- biasCorrection(y = pp_baseline, x = pp_historical,  newdata = pp_model_ssp, precipitation = TRUE, method = "qdm")
     
-    model_ssp_eqm<-biasCorrection(y = pp_baseline, x = model_training, newdata = model_ssp, precipitation = FALSE, method = "eqm", extrapolation = "constant")
-    model_ssp_qdm<-biasCorrection(y = pp_baseline, x = model_training, newdata = model_ssp, precipitation = FALSE, method = "qdm")
-    model_ssp_var<-biasCorrection(y = pp_baseline, x = model_training, newdata = model_ssp, precipitation = FALSE, method = "variance")
-    grid2nc(model_ssp_eqm, paste0(file_path_sans_ext(basename(model_name)),"_eqm.nc4"))
-    grid2nc(model_ssp_qdm, paste0(file_path_sans_ext(basename(model_name)),"_qdm.nc4"))
-    grid2nc(model_ssp_var, paste0(file_path_sans_ext(basename(model_name)),"_ptr.nc4"))
+    t2m_model_name<-grep(pattern = ssp_list[i], t2m_files, value = T)
+    t2m_model_ssp <- loadGridData(t2m_model_name, var = "tas", years = 2020:2060)
+    t2m_model_ssp <- interpGrid(t2m_model_ssp, new.coordinates = getGrid(t2m_historical), method = "bilinear", bilin.method = "akima")
+    t2m_model_ssp_qdm <- biasCorrection(y = t2m_baseline, x = t2m_historical, newdata = t2m_model_ssp, precipitation = FALSE, method = "qdm")
+    
+    setwd(gcm_list[j])
+    grid2nc(pp_model_ssp_qdm, paste0(basename(pp_model_name),"_qdm.nc4"))
+    grid2nc(t2m_model_ssp_qdm, paste0(basename(t2m_model_name),"_qdm.nc4"))
     print(paste0("model_",j,"_ssp_",i-1))
+    }
   }
-}
