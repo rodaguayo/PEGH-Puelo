@@ -8,10 +8,21 @@ library("hydroTSM")
 
 q_sim<-read.csv("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Results/Caudales_Simulados.csv")
 q_obs<-read.csv("C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Results/Caudales_Observados.csv")
+
+q_sim$X<-as.Date(q_sim$X, "%b %d %Y")
+q_obs$X<-as.Date(q_obs$X, "%b %d %Y")
+
+q_sim<-zoo(q_sim[,2:11], order.by = q_sim$X)
+q_obs<-zoo(q_obs[,2:11], order.by = q_obs$X)
+period<-as.yearmon(time(q_sim))
+q_sim<-as.data.frame(aggregate(q_sim, as.yearmon(time(q_sim)), mean))
+q_obs<-as.data.frame(aggregate(q_obs, as.yearmon(time(q_obs)), mean))
+period<-as.Date(paste0(rownames(q_sim),1), "%b %Y%d")
+
 names_gauge<-c("Río Azul", "Río Foyel","Río Manso en los Moscos","Rio Manso en Lago Steffen","Río Manso en Confluencia",
                "Río Manso antes Río Puelo", "Puelo en Frontera","Río Puelo antes Río Manso","Río Puelo en Tagua-Tagua","Río Puelo en Carrera Basilio")
 
-q_sim_c<-q_sim[as.numeric(substr(rownames(q_sim), 5, 8)) %% 2 != 1,]
+q_sim_c<-q_sim[as.numeric(substr(rownames(q_sim), 7, 10)) %% 2 != 1,]
 q_obs_c<-q_obs[as.numeric(substr(rownames(q_obs), 5, 8)) %% 2 != 1,]
 q_sim_v<-q_sim[as.numeric(substr(rownames(q_sim), 5, 8)) %% 2 == 1,]
 q_obs_v<-q_obs[as.numeric(substr(rownames(q_obs), 5, 8)) %% 2 == 1,]
@@ -55,27 +66,27 @@ fig5 <- plot_ly(showlegend = F, y = q_sim[,5], x = period, type = 'scatter', mod
 fig5 <- fig5 %>% add_trace(y = q_obs[,5], mode = 'lines', name = "Obs",  opacity  = 1, line = list(color = "black", width = 1))
 fig5 <- fig5 %>% layout(xaxis = x, yaxis = y, annotations = title5)
 
-title6 <-list(text = "f) Manso antes de Puelo", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.4, y = 0.99)
+title6 <-list(text = "f) Manso antes de Puelo", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.15, y = 0.99)
 fig6 <- plot_ly(showlegend = F, y = q_sim[,6], x = period, type = 'scatter', mode = 'lines', name = "Sim",  opacity  = 1, line = list(color = "grey", width = 1))
 fig6 <- fig6 %>% add_trace(y = q_obs[,6], mode = 'lines', name = "Obs",  opacity  = 1, line = list(color = "black", width = 1))
 fig6 <- fig6 %>% layout(xaxis = x, yaxis = y, annotations = title6)
 
-title7 <-list(text = "g) Puelo en Frontera", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.4, y = 0.99)
+title7 <-list(text = "g) Puelo en Frontera", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.15, y = 0.99)
 fig7 <- plot_ly(showlegend = F, y = q_sim[,7], x = period, type = 'scatter', mode = 'lines', name = "Sim",  opacity  = 1, line = list(color = "grey", width = 1))
 fig7 <- fig7 %>% add_trace(y = q_obs[,7], mode = 'lines', name = "Obs",  opacity  = 1, line = list(color = "black", width = 1))
 fig7 <- fig7 %>% layout(xaxis = x, yaxis = y, annotations = title7)
 
-title8 <-list(text = "h) Puelo antes Manso", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.4, y = 0.99)
+title8 <-list(text = "h) Puelo antes Manso", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.15, y = 0.99)
 fig8 <- plot_ly(showlegend = F, y = q_sim[,8], x = period, type = 'scatter', mode = 'lines', name = "Sim",  opacity  = 1, line = list(color = "grey", width = 1))
 fig8 <- fig8 %>% add_trace(y = q_obs[,8], mode = 'lines', name = "Obs",  opacity  = 1, line = list(color = "black", width = 1))
 fig8 <- fig8 %>% layout(xaxis = x, yaxis = y, annotations = title8)
 
-title9 <-list(text = "i) Puelo en Tagua-Tagua", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.4, y = 0.99)
+title9 <-list(text = "i) Puelo en Tagua-Tagua", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.15, y = 0.99)
 fig9 <- plot_ly(showlegend = F, y = q_sim[,9], x = period, type = 'scatter', mode = 'lines', name = "Sim",  opacity  = 1, line = list(color = "grey", width = 1))
 fig9 <- fig9 %>% add_trace(y = q_obs[,9], mode = 'lines', name = "Obs",  opacity  = 1, line = list(color = "black", width = 1))
 fig9 <- fig9 %>% layout(xaxis = x, yaxis = y, annotations = title9)
 
-title10 <-list(text = "j) Puelo en Carrera Basilio", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.4, y = 0.99)
+title10 <-list(text = "j) Puelo en Carrera Basilio", font = f, showarrow = F, xref = "paper", yref = "paper", x = 0.15, y = 0.99)
 fig10 <- plot_ly(showlegend = F, y = q_sim[,10], x = period, type = 'scatter', mode = 'lines', name = "Sim",  opacity  = 1, line = list(color = "grey", width = 1))
 fig10 <- fig10 %>% add_trace(y = q_obs[,10], mode = 'lines', name = "Obs",  opacity  = 1, line = list(color = "black", width = 1))
 fig10 <- fig10 %>% layout(xaxis = x, yaxis = y, annotations = title10)
@@ -85,7 +96,6 @@ s2  <- subplot(fig6, fig7, fig8, fig9, fig10, nrows = 5, shareX = T, shareY= F, 
 s3  <-  subplot(s1, s2, shareX = F, shareY= F, titleY = T, titleX = T, margin = c(0.04, 0.04, 0.04, 0.04))
 s3
 
-
 server <- orca_serve()
-server$export(s3, file = "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/KGE.png", width = 1350, height = 700, scale = 3)
+server$export(s3, file = "C:/Users/rooda/Dropbox/Proyectos/Puelo PEGH/Results/Hydro_plots_all.png", width = 1300, height = 750, scale = 3)
 server$close()
