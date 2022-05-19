@@ -22,7 +22,6 @@ for (i in 1:length(basins)) {
   zone_i$HRU <- basins[i,]$Nombre
   zone_i$ID_WEAP <- paste0("Subcuenca_", basins[i,]$Nombre,"_",weap_id)
   
-  
   elev_bands<-rbind(elev_bands,zone_i)
   print(i)
   
